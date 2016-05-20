@@ -1,6 +1,5 @@
 ---
 layout: lesson
-root: .
 title: Troubleshooting failed jobs
 ---
 <div class="objectives" markdown="1">

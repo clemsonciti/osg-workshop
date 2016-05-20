@@ -1,6 +1,5 @@
 ---
 layout: lesson
-root: .
 title: Scientific Workflow Management - DAGMAN 
 ---
 <div class="objectives" markdown="1">

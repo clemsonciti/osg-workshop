@@ -1,6 +1,6 @@
 ---
 layout: lesson
-root: .
+root:
 title: Distributed Computing on Open Science Grid
 ---
 

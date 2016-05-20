@@ -1,6 +1,5 @@
 ---
 layout: lesson
-root: .
 title: Data storage and transfer
 ---
 <div class="objectives" markdown="1">

@@ -1,6 +1,5 @@
 ---
 layout: lesson
-root: .
 title: HTCondor scripts  
 ---
 <div class="objectives" markdown="1">

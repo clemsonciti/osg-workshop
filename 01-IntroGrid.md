@@ -1,6 +1,5 @@
 ---
 layout: lesson
-root: .
 title: Introduction to Open Science Grid 
 ---
 
