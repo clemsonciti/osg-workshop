@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: Scaling up the resources</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <h1 class="title">Scaling up the resources</h1>
+          <div class="objectives" markdown="1">
+<h4 id="objectives">Objectives</h4>
+<ul>
+<li>Learn why to scale up the computational resources.</li>
+<li>Learn how to scaling up the computational resources<br />
+</li>
+</ul>
+</div>
+<h2>
+Overview
+</h2>
+<p>Scaling up the computational resources is a big advantage for doing certain large scale calculations on OSG. Consider the extensive sampling for a multi-dimensional Monte Carlo integration or molecular dynamics simulation with several initial conditions. These type of calculations definetly require submitting lot of jobs.</p>
+<p>In the past examples, we submitted the job to a single worker machine. About a million CPU hours per day is available to the users on an oppertunistic basis for the OSG users. Learning how to scale up the resources is important to utilize the full potential of the distributed high throughput computing on OSG.</p>
+<p>In this section, we will see how to scale up the calculations with simple example. Once we understand the basic HTCondor script, it is easy to scale up of the resources.</p>
+<h2 id="example">Example</h2>
+<p>Run the command</p>
+<pre><code>$ tutorial scaling-up-resources
+$ cd tutorial-scaling-up-resourcew</code></pre>
+<p>As we discussed in the previous section on HTCondor scripts, we need to prepare the job execution and the job submission scripts. For simplicity, we keep the same job execution script we discussed before in the HTCondor scripts section.</p>
+<pre><code>The &quot;short.sh&quot; script is:
+$ nano short.sh
+file: short.sh
+#!/bin/bash
+# short.sh: a short discovery job
+printf &quot;Start time: &quot;; /bin/date
+printf &quot;Job is running on node: &quot;; /bin/hostname
+printf &quot;Job running as user: &quot;; /usr/bin/id
+printf &quot;Job is running in directory: &quot;; /bin/pwd
+echo
+echo &quot;Working hard...&quot;
+sleep ${1-15}
+echo &quot;Science complete!&quot;</code></pre>
+<p>Now we prepare the job submission script.</p>
+<pre><code>$ nano campus.submit
+Universe = vanilla
+
+Executable = short.sh
+Arguments = 5 # to sleep 5 seconds
+
+Error = log/campus.err.$(Cluster)-$(Process) #differs from the old script
+Output = log/campus.out.$(Cluster)-$(Process) #differs from the old script
+Log = log/campus.log.$(Cluster) #differs from the old script
+
+Queue 25 #differs from the old script</code></pre>
+<p>In the above script, the value of Queue is 25, so you will see 25 jobs in the queue when you try</p>
+<pre><code>condor_q username</code></pre>
+<div class="keypoints" markdown="1">
+<h4 id="keypoints">Keypoints</h4>
+<ul>
+<li>Scaling up the computational resources on OSG is beneficial to many scientific calculations and simulations.<br />
+</li>
+<li>Changing the value of <em>Queue</em> allows the user to scale up the resources.<br />
+</li>
+</ul>
+</div>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+  </body>
+</html>
