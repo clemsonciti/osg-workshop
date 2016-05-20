@@ -1,26 +1,11 @@
 ---
-layout: page
-title: Lesson Title
+layout: lesson
+root: .
+title: Distributed Computing on Open Science Grid
 ---
-Paragraph of introductory material.
 
-> ## Prerequisites {.prereq}
->
-> A short paragraph describing what learners need to know
-> before tackling this lesson.
-
-> ## Getting ready {.getready}
->
-> A short paragraph describing
-> what learners need to do before tackling this lesson.
-
-## Topics
-
-1.  [Topic Title One](01-one.html)
-2.  [Topic Title Two](02-two.html)
-
-## Other Resources
-
-*   [Reference](reference.html)
-*   [Discussion](discussion.html)
-*   [Instructor's Guide](instructors.html)
+1.  [Introduction to Open Science Grid](01-IntroGrid.html)
+2.  [Submitting Jobs  - HTCondor](02-HTCondor-Submitting.html)
+3.  [Data Storage and Transfer](03-Stash.html)
+4.  [Large Scale Scientific Computing - DAGMAN](04-dagman.html)
+5.  [Troubleshooting failed jobs](05-TroubleShooting.html)
