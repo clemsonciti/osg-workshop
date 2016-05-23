@@ -36,6 +36,3 @@ keep the files under `~/public`.
 The ~public is available via WWW as http://stash.osgconnect.net/+username.
 The data on `~/public` is accessible to the jobs on remote worker machine via the wget command.
 
-## Submitting a job with 
-
-
