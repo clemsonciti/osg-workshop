@@ -2,21 +2,17 @@
 layout: lesson
 title: Troubleshooting failed jobs
 ---
-<div class="objectives" markdown="1">
 
-#### Objectives
+## Objectives {.objectives}
 *   Learn how to troubleshoot failed jobs.
 *   Learn how to periodically retry the failed jobs.
-</div>
 
-<h2>Overview </h2> 
-We will discuss how to check the job failures and ways to correct the failures.  
+## Troubleshooting techniques
 
-<h2> Troubleshooting techniques </h2> 
+### Diagnostics with condor_q
 
-<h3> Diagnostics with condor_q  </h3> 
 The *condor_q* command shows the status of the jobs and it can be used to diagnose why jobs are not 
-running. The *condor_q* command with the option "-better-analyze" will return detailed
+running. The *condor_q* command with the option `-better-analyze` will return detailed
 information about the jobs. Since OSG Connect sends jobs to many places, we also need to specify a pool name with the "-pool" flag
 
 ~~~
@@ -24,12 +20,10 @@ $ condor_q -better-analyze JOB-ID -pool osg-flock.grid.iu.edu
 ~~~
 
 The detailed information about a job may help us to identify why a job is not running properly. 
-
-Let us do an example. 
+As an example, we'll use the built-in `error101` tutorial:
 
 ~~~
-$ ssh username@login.osgconnect.net   #login 
-$ passwd                              
+$ ssh username@login.osgconnect.net
 
 $ tutorial error101
 $ cd tutorial-erro101
@@ -44,7 +38,6 @@ Let us check the job status by
 condor_q username
 ~~~
 
-The submitted job remains in the idle state. The job is failed to go through the queue. Now we check the 
 output from *condor_q -better-analyze* that will give us additional detail. 
 
 ~~~
@@ -84,23 +77,7 @@ or you can edit the resource requirement of a job while it is in the idle state.
 condor_qedit JOB-ID Requirements 'Requirements = (Memory >= 512)' 
 ~~~
 
-<h3> On your own </h3>
-  1) Use the *connect status* command to get a list of pools (e.g., 'uc3-mgt.mwt2.org') <br/>
-  2) Edit error101_job.submit to include "requirements = (IS_RCC_Syracuse == True)" before the 'queue' statement <br/>
-  3) Use *condor_q -better-analyze* against each pool. Does it match any slots? If so, where? <br/>
-
-<br/>
-<br/>
-<h3> condor_ssh_to_job </h3> 
-This command allows the user to *ssh* on the compute node where the job is running.  Once the command 
-is run, the user will be in the job's working directory and can examine the job's environment and run 
-commands. 
-
-~~~
-condor_ssh_to_job JOB-ID  
-~~~
-
-<h3> Held jobs and condor_release </h3>
+### Held jobs and condor_release
 
 The jobs go to the held state for several reasons. One of them is due to the failure to transfer the output
 files. If this is the case, you might see the output of the analysis something as follows
@@ -122,10 +99,9 @@ that the error is a transient one and won't reoccur, you can run
 ~~~
 condor_release JOB-ID 
 ~~~
-to requeue the job.  Alternatively, you can use *condor_ssh_to_job* to examine the job environment and investigate further.
+to requeue the job.
 
-
-<h3> Retries with periodic_release </h3>
+### Retries with periodic_release
 
 We do computing on a hetrogenous environment. It is possible that the jobs are pre-empted due to a partcular
 resource limitation (For example, the machine wants to perform someother task or reboot while your job 
@@ -142,11 +118,6 @@ on_exit_hold = (ExitBySignal == True) || (ExitCode != 0)
 periodic_release =  (NumJobStarts < 3) && ((CurrentTime - EnteredCurrentStatus) > (60*60))
 ~~~
 
-
-<div class="keypoints" markdown="1">
-#### Keypoints
+## Keypoints
 *    *condor_q -better-analyze JOB-ID* command is useful to diagnose failed jobs. 
 *    Failed jobs are automatically deducted and periodically retried  with *on_exit_old* and *periodic_release* in the condor submit files.
-</div>
-
-

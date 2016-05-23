@@ -153,16 +153,19 @@ $ condor_history 21629556
  21629556.0   atrikut         5/22 19:15   0+00:02:55 C   5/22 19:19 /home/atrikut/python-example/hello.sh 0
 ~~~
 
-You can see much more information about your job's final status using the -long option.
+You can see much more information about your job's final status using the `-long` option.
 
 ## Job output
+
 Once your job has finished, you can look at the files that HTCondor has returned to the 
 working directory. If everything was successful, it should have returned:
-* an output file for each job's output
-* an error file for each job's errors
-* a log  file for each job's log
+
+*   an output file for each job's output
+*   an error file for each job's errors
+*   a log  file for each job's log
 
 ## Key Points
+
 *   HTCondor shedules and monitors your Jobs. 
 *   To submit a job to HTCondor, the user need to prepare the Job execution and Job Submission scripts. 
 *   *condor_submit* - HTCondor's job submission command.     
