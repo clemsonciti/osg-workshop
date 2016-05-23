@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="pandoc">
+    <title>Software Carpentry: HTCondor scripts</title>
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap.css" />
+    <link rel="stylesheet" type="text/css" href="css/bootstrap/bootstrap-theme.css" />
+    <link rel="stylesheet" type="text/css" href="css/swc.css" />
+    <link rel="alternate" type="application/rss+xml" title="Software Carpentry Blog" href="http://software-carpentry.org/feed.xml"/>
+    <meta charset="UTF-8" />
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="https://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body class="lesson">
+    <div class="container card">
+      <div class="banner">
+        <a href="http://software-carpentry.org" title="Software Carpentry">
+          <img alt="Software Carpentry banner" src="img/software-carpentry-banner.png" />
+        </a>
+      </div>
+      <article>
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+                    <h1 class="title">HTCondor scripts</h1>
+          <h2 id="objectives" class="objectives">Objectives</h2>
+<ul>
+<li>Learn how to submit HTCondor Jobs.<br />
+</li>
+<li>Learn how to monitor the running Jobs.</li>
+</ul>
+<h2 id="overview">Overview</h2>
+<p>In this section, we will learn the basics of HTCondor in submitting and monitoring jobs. The jobs are submitted through the login node of OSG Connect. The submitted jobs are executed on the remote worker node(s) and the outputs are transfered back to the login node. In the HTCondor job submit file, we have to describe how to execute the program and transfer the output data.</p>
+<h2 id="hello-world-on-osg">Hello world on OSG</h2>
+<p>As our first job, we’ll simply submit a series of jobs that each print a job ID (the first will print 0, the second will print 1, and so on…). So here’s the expected output from each job:</p>
+<pre><code>Hello world! I am job 0</code></pre>
+<pre><code>Hello world! I am job 1</code></pre>
+<pre><code>Hello world! I am job 2</code></pre>
+<p>.. and so on.</p>
+<p>First, let’s write a simple bash script that will perform this task:</p>
+<pre><code>#!/bin/bash
+
+# hello.sh
+
+echo &quot;Hello world! I am job $1&quot;</code></pre>
+<p>Let’s test that the script works:</p>
+<pre class="input"><code>$ chmod u+rx hello.sh</code></pre>
+<pre class="input"><code>$ ./hello.sh 100</code></pre>
+<pre class="outpu"><code>Hello world! I am job 100</code></pre>
+<pre class="input"><code>$ ./hello.sh 2</code></pre>
+<pre><code>Hello world! I am job 2</code></pre>
+<p>Now, we’ll write a HTCondor job script to submit several jobs, each of which will run <code>hello.sh</code>.</p>
+<pre><code># hello.submit
+
+# The UNIVERSE defines an execution environment. You will almost always use VANILLA. 
+universe = vanilla
+
+# EXECUTABLE is the program your job will run.
+Executable = hello.sh
+
+# Any arguments that will be passed to the EXECUTABLE:
+arguments = $(Process)
+
+# ERROR and OUTPUT are the error and output channels from your job
+# that HTCondor returns from the remote host.
+error = err.$(Process)
+output = out.$(Process)
+
+# The LOG file is where HTCondor places information about your 
+# job&#39;s status, success, and resource consumption. 
+log = log.$(Process)
+
+# QUEUE is the &quot;start button&quot; - it launches any jobs that have been 
+# specified thus far. 
+queue 5</code></pre>
+<p>To submit the jobs, run <code>condor_submit</code>:</p>
+<pre class="input"><code>$ condor_submit hello.sh</code></pre>
+<p>The condor_q command tells the status of currently running jobs. Generally you will want to limit it to your own jobs:</p>
+<pre><code>$ condor_submit hello.submit
+Submitting job(s).....
+5 job(s) submitted to cluster 21629556.</code></pre>
+<pre><code>$ condor_q atrikut
+
+
+-- Submitter: login01.osgconnect.net : &lt;192.170.227.195:47086&gt; : login01.osgconnect.net
+ ID      OWNER            SUBMITTED     RUN_TIME ST PRI SIZE CMD
+ 21629556.0   atrikut         5/22 19:15   0+00:00:00 I  0   0.0  hello.sh 0
+ 21629556.1   atrikut         5/22 19:15   0+00:00:00 I  0   0.0  hello.sh 1
+ 21629556.2   atrikut         5/22 19:15   0+00:00:00 I  0   0.0  hello.sh 2
+ 21629556.3   atrikut         5/22 19:15   0+00:00:00 I  0   0.0  hello.sh 3
+ 21629556.4   atrikut         5/22 19:15   0+00:00:00 I  0   0.0  hello.sh 4
+
+ 5 jobs; 0 completed, 0 removed, 5 idle, 0 running, 0 held, 0 suspended</code></pre>
+<p>Note the ST (state) column. Your job will be in the I state (idle) if it hasn’t started yet. If it’s currently scheduled and running, it will have state R (running). If it has completed already, it will not appear in condor_q.</p>
+<p>Let’s wait for your job to finish – that is, for <code>condor_q</code> not to show the job in its output. A useful tool for this is <code>watch</code> – it runs a program repeatedly, letting you see how the output differs at fixed time intervals. Let’s submit the job again, and watch condor_q output at two-second intervals:</p>
+<pre><code>$ watch -n2 condor_q username </code></pre>
+<p>When your job has completed, it will disappear from the list. To close watch, hold down Ctrl and press C.</p>
+<h2 id="job-history">Job history</h2>
+<p>Once your job has finished, you can get information about its execution from the condor_history command:</p>
+<pre><code>$ condor_history 21629556
+ ID     OWNER          SUBMITTED   RUN_TIME     ST COMPLETED   CMD
+ 21629556.4   atrikut         5/22 19:15   0+00:00:04 C   5/22 19:21 /home/atrikut/python-example/hello.sh 4
+ 21629556.3   atrikut         5/22 19:15   0+00:00:39 C   5/22 19:21 /home/atrikut/python-example/hello.sh 3
+ 21629556.1   atrikut         5/22 19:15   0+00:03:45 C   5/22 19:20 /home/atrikut/python-example/hello.sh 1
+ 21629556.2   atrikut         5/22 19:15   0+00:00:48 C   5/22 19:20 /home/atrikut/python-example/hello.sh 2
+ 21629556.0   atrikut         5/22 19:15   0+00:02:55 C   5/22 19:19 /home/atrikut/python-example/hello.sh 0</code></pre>
+<p>You can see much more information about your job’s final status using the <code>-long</code> option.</p>
+<h2 id="job-output">Job output</h2>
+<p>Once your job has finished, you can look at the files that HTCondor has returned to the working directory. If everything was successful, it should have returned:</p>
+<ul>
+<li>an output file for each job’s output</li>
+<li>an error file for each job’s errors</li>
+<li>a log file for each job’s log</li>
+</ul>
+<h2 id="key-points">Key Points</h2>
+<ul>
+<li>HTCondor shedules and monitors your Jobs.</li>
+<li>To submit a job to HTCondor, the user need to prepare the Job execution and Job Submission scripts.</li>
+<li><em>condor_submit</em> - HTCondor’s job submission command.<br />
+</li>
+<li><em>condor_q</em> - HTCondor’s job monitoring command.<br />
+</li>
+<li><em>condor_rm</em> - HTCondor’s job removal command.</li>
+</ul>
+        </div>
+      </div>
+      </article>
+      <div class="footer">
+        <a class="label swc-blue-bg" href="http://software-carpentry.org">Software Carpentry</a>
+        <a class="label swc-blue-bg" href="https://github.com/swcarpentry/lesson-template">Source</a>
+        <a class="label swc-blue-bg" href="mailto:admin@software-carpentry.org">Contact</a>
+        <a class="label swc-blue-bg" href="LICENSE.html">License</a>
+      </div>
+    </div>
+    <!-- Javascript placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <script src="css/bootstrap/bootstrap-js/bootstrap.js"></script>
+  </body>
+</html>
